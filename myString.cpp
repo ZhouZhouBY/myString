@@ -2,14 +2,31 @@
 #include <string.h>
 
 #include <cassert>
+#include <iostream>
 #pragma warning(disable:4996)
 
 myString::myString() {
 	size = 1;
-	p = new char[size + 1];
-	p[0] = '\0';
+	data = new char[size + 1];
+	data[0] = '\0';
 	len = 0;
 }
+
+//myString::myString(const char* s)//通用构造函数
+//{
+//	if (!s)
+//	{
+//		size = 1;
+//		data = new char[1];
+//		*data = '\0';
+//		len = 0;
+//	} else
+//	{
+//		len = strlen(s);
+//		data = new char[len + 1];
+//		strcpy(data, s);
+//	}
+//}
 
 myString::myString(const char* s) {
 	size = 1;
@@ -20,39 +37,51 @@ myString::myString(const char* s) {
 	while (size < len) {
 		size *= 2;
 	}
-	p = new char[size + 1];
-	if (p == NULL) {
-		
-	}
-	strncpy(p, s, size);
-	p[size] = '\0';
-}
 
+	data = new char[size + 1];
+	if (data == NULL) {
+		cout << "data is null" << endl;
+	}
+	strncpy(data, s, size);
+	data[size] = '\0';
+}
+ 
 myString::myString(const myString& s) {
 	size = s.size;
-	p = new char[size + 1];
-	strcpy(p, s.p);
+	data = new char[size + 1];
+	strcpy(data, s.data);
 	len = s.len;
 }
 
 myString::~myString() {
-	delete[] p;
+	delete[] data;
+	len = 0;
 }
 
 ostream& operator<< (ostream& out, const myString& s) {
-	out << s.p;
+	out << s.data;
 	return out;
+}
+
+istream& operator>> (istream& in, myString& s) {
+	char p[1000];
+	in >> p;
+	s.size = strlen(p);
+	s.len = strlen(p);
+	s.data = new char[s.len + 1];
+	strcpy(s.data, p);
+	return in;
 }
 
 myString& myString::operator= (const myString& s) {
 	if (&s == this) {
 		return *this;
 	}
-	delete[] p;
+	delete[] data;
 	size = s.size;
-	p = new char[size + 1];
-	strncpy(p, s.p, s.len);
-	p[s.len] = '\0';
+	data = new char[size + 1];
+	strncpy(data, s.data, s.len);
+	data[s.len] = '\0';
 	len = s.len;
 	return *this;
 }
@@ -60,27 +89,27 @@ myString& myString::operator= (const myString& s) {
 
 char& myString::operator[] (const int index) {
 	assert(index >= 0 && index < len);
-	return p[index];
+	return data[index];
 }
 
 myString& myString::operator+= (const string& s) {
 	len += s.length();
 	len = len > max_size ? max_size : len;
 	if (size > len) {
-		strncat(p, s.c_str(), size - strlen(p));
-		p[size] = '\0';
+		strncat(data, s.c_str(), size - strlen(data));
+		data[size] = '\0';
 		return *this;
 	}
 	while (size < len) {
 		size *= 2;
 	}
 	char* tmp = new char[size + 1];
-	strncpy(tmp, p, strlen(p));
-	tmp[strlen(p)] = '\0';
-	strncat(tmp, s.c_str(), size - strlen(p));
+	strncpy(tmp, data, strlen(data));
+	tmp[strlen(data)] = '\0';
+	strncat(tmp, s.c_str(), size - strlen(data));
 	tmp[size] = '\0';
-	delete[] p;
-	p = tmp;
+	delete[] data;
+	data = tmp;
 	return *this;
 }
 
@@ -88,20 +117,20 @@ myString& myString::operator+= (const myString& s) {
 	len += s.len;
 	len = len > max_size ? max_size : len;
 	if (size > len) {
-		strncat(p, s.p, size - strlen(p));
-		p[size] = '\0';
+		strncat(data, s.data, size - strlen(data));
+		data[size] = '\0';
 		return *this;
 	}
 	while (size < len) {
 		size *= 2;
 	}
 	char* tmp = new char[size + 1];
-	strncpy(tmp, p, strlen(p));
-	tmp[strlen(p)] = '\0';
-	strncat(tmp, s.p, size - strlen(p));
+	strncpy(tmp, data, strlen(data));
+	tmp[strlen(data)] = '\0';
+	strncat(tmp, s.data, size - strlen(data));
 	tmp[size] = '\0';
-	delete[] p;
-	p = tmp;
+	delete[] data;
+	data = tmp;
 	return *this;
 }
 
@@ -109,19 +138,36 @@ myString& myString::operator+= (const char* s) {
 	len += strlen(s);
 	len = len > max_size ? max_size : len;
 	if (size > len) {
-		strncat(p, s, size - strlen(p));
-		p[size] = '\0';
+		strncat(data, s, size - strlen(data));
+		data[size] = '\0';
 		return *this;
 	}
 	while (size < len) {
 		size *= 2;
 	}
 	char* tmp = new char[size + 1];
-	strncpy(tmp, p, strlen(p));
-	tmp[strlen(p)] = '\0';
-	strncat(tmp, s, size - strlen(p));
+	strncpy(tmp, data, strlen(data));
+	tmp[strlen(data)] = '\0';
+	strncat(tmp, s, size - strlen(data));
 	tmp[size] = '\0';
-	delete[] p;
-	p = tmp;
+	delete[] data;
+	data = tmp;
 	return *this;
+}
+
+bool myString::operator== (const myString& s) const {
+	if (len != s.len) {
+		return false;
+	}
+	return strcmp(data, s.data) ? false : true;
+}
+
+myString myString::operator+ (const myString& s) const{
+	myString str;
+	str.size = s.size + size;
+	str.len = s.len + len;
+	str.data = new char[str.size + 1];
+	strcpy(str.data, data);
+	strcat(str.data, s.data);
+	return str;
 }
