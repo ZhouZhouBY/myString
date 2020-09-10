@@ -14,6 +14,6 @@
 9.重载+运算符  
 10.重载==运算符  
 11.重载+=运算符  
-  &nbsp;&nbsp;8.1支持C风格字符串  
-  &nbsp;&nbsp;8.2支持string对象  
-  &nbsp;&nbsp;8.3支持myString对象  
+  &nbsp;&nbsp;11.1支持C风格字符串  
+  &nbsp;&nbsp;11.2支持string对象  
+  &nbsp;&nbsp;11.3支持myString对象  
